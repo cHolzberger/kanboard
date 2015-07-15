@@ -163,10 +163,10 @@ class Task extends Base
                 if (isset($values['another_task']) && $values['another_task'] == 1) {
                     unset($values['title']);
                     unset($values['description']);
-                    $this->response->redirect('?controller=task&action=create&'.http_build_query($values));
+                    $this->response->redirect($this->helper->url->to('task', 'create', $values));
                 }
                 else {
-                    $this->response->redirect('?controller=board&action=show&project_id='.$project['id']);
+                    $this->response->redirect($this->helper->url->to('board', 'show', array('project_id' => $project['id'])));
                 }
             }
             else {
@@ -231,10 +231,10 @@ class Task extends Base
                 $this->session->flash(t('Task updated successfully.'));
 
                 if ($this->request->getIntegerParam('ajax')) {
-                    $this->response->redirect('?controller=board&action=show&project_id='.$task['project_id']);
+                    $this->response->redirect($this->helper->url->to('board', 'show', array('project_id' => $task['project_id'])));
                 }
                 else {
-                    $this->response->redirect('?controller=task&action=show&task_id='.$task['id'].'&project_id='.$task['project_id']);
+                    $this->response->redirect($this->helper->url->to('task', 'show', array('project_id' => $task['project_id'], 'task_id' => $task['id'])));
                 }
             }
             else {
@@ -264,7 +264,7 @@ class Task extends Base
             $this->session->flashError(t('Unable to update your task.'));
         }
 
-        $this->response->redirect('?controller=task&action=show&task_id='.$task['id'].'&project_id='.$task['project_id']);
+        $this->response->redirect($this->helper->url->to('task', 'show', array('project_id' => $task['project_id'], 'task_id' => $task['id'])));
     }
 
     /**
@@ -326,7 +326,7 @@ class Task extends Base
                 $this->session->flashError(t('Unable to open this task.'));
             }
 
-            $this->response->redirect('?controller=task&action=show&task_id='.$task['id'].'&project_id='.$task['project_id']);
+            $this->response->redirect($this->helper->url->to('task', 'show', array('project_id' => $task['project_id'], 'task_id' => $task['id'])));
         }
 
         $this->response->html($this->taskLayout('task/open', array(
@@ -357,7 +357,7 @@ class Task extends Base
                 $this->session->flashError(t('Unable to remove this task.'));
             }
 
-            $this->response->redirect('?controller=board&action=show&project_id='.$task['project_id']);
+            $this->response->redirect($this->helper->url->to('board', 'show', array('project_id' => $task['project_id'])));
         }
 
         $this->response->html($this->taskLayout('task/remove', array(
@@ -381,10 +381,10 @@ class Task extends Base
 
             if ($task_id) {
                 $this->session->flash(t('Task created successfully.'));
-                $this->response->redirect('?controller=task&action=show&task_id='.$task_id.'&project_id='.$task['project_id']);
+                $this->response->redirect($this->helper->url->to('task', 'show', array('project_id' => $task['project_id'], 'task_id' => $task['id'])));
             } else {
                 $this->session->flashError(t('Unable to create this task.'));
-                $this->response->redirect('?controller=task&action=duplicate&task_id='.$task['id'].'&project_id='.$task['project_id']);
+                $this->response->redirect($this->helper->url->to('task', 'duplicate', array('project_id' => $task['project_id'], 'task_id' => $task['id'])));
             }
         }
 
@@ -419,10 +419,10 @@ class Task extends Base
                 }
 
                 if ($ajax) {
-                    $this->response->redirect('?controller=board&action=show&project_id='.$task['project_id']);
+                    $this->response->redirect($this->helper->url->to('board', 'show', array('project_id' => $task['project_id'])));
                 }
                 else {
-                    $this->response->redirect('?controller=task&action=show&task_id='.$task['id'].'&project_id='.$task['project_id']);
+                    $this->response->redirect($this->helper->url->to('task', 'show', array('project_id' => $task['project_id'], 'task_id' => $task['id'])));
                 }
             }
         }
@@ -454,7 +454,6 @@ class Task extends Base
     public function recurrence()
     {
         $task = $this->getTask();
-        $ajax = $this->request->isAjax() || $this->request->getIntegerParam('ajax');
 
         if ($this->request->isPost()) {
 
@@ -471,12 +470,7 @@ class Task extends Base
                     $this->session->flashError(t('Unable to update your task.'));
                 }
 
-                if ($ajax) {
-                    $this->response->redirect('?controller=board&action=show&project_id='.$task['project_id']);
-                }
-                else {
-                    $this->response->redirect('?controller=task&action=show&task_id='.$task['id'].'&project_id='.$task['project_id']);
-                }
+                $this->response->redirect($this->helper->url->to('task', 'show', array('project_id' => $task['project_id'], 'task_id' => $task['id'])));
             }
         }
         else {
@@ -488,19 +482,13 @@ class Task extends Base
             'values' => $values,
             'errors' => $errors,
             'task' => $task,
-            'ajax' => $ajax,
             'recurrence_status_list' => $this->task->getRecurrenceStatusList(),
             'recurrence_trigger_list' => $this->task->getRecurrenceTriggerList(),
             'recurrence_timeframe_list' => $this->task->getRecurrenceTimeframeList(),
             'recurrence_basedate_list' => $this->task->getRecurrenceBasedateList(),
         );
 
-        if ($ajax) {
-            $this->response->html($this->template->render('task/edit_recurrence', $params));
-        }
-        else {
-            $this->response->html($this->taskLayout('task/edit_recurrence', $params));
-        }
+        $this->response->html($this->taskLayout('task/edit_recurrence', $params));
     }
 
     /**
@@ -526,7 +514,7 @@ class Task extends Base
 
                 if ($this->taskDuplication->moveToProject($task['id'], $values['project_id'])) {
                     $this->session->flash(t('Task updated successfully.'));
-                    $this->response->redirect('?controller=task&action=show&task_id='.$task['id'].'&project_id='.$values['project_id']);
+                    $this->response->redirect($this->helper->url->to('task', 'show', array('project_id' => $task['project_id'], 'task_id' => $task['id'])));
                 }
                 else {
                     $this->session->flashError(t('Unable to update your task.'));
@@ -565,7 +553,7 @@ class Task extends Base
                 $task_id = $this->taskDuplication->duplicateToProject($task['id'], $values['project_id']);
                 if ($task_id) {
                     $this->session->flash(t('Task created successfully.'));
-                    $this->response->redirect('?controller=task&action=show&task_id='.$task_id.'&project_id='.$values['project_id']);
+                    $this->response->redirect($this->helper->url->to('task', 'show', array('project_id' => $task['project_id'], 'task_id' => $task['id'])));
                 }
                 else {
                     $this->session->flashError(t('Unable to create your task.'));

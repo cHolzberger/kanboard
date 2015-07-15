@@ -5,13 +5,14 @@
             <ul>
                 <?php if (isset($is_board)): ?>
                 <li>
-                    <?php if ($this->board->isCollapsed($project['id'])): ?>
+                    <span class="filter-display-mode" <?= $this->board->isCollapsed($project['id']) ? '' : 'style="display: none;"' ?>>
                         <i class="fa fa-expand fa-fw"></i>
                         <?= $this->url->link(t('Expand tasks'), 'board', 'expand', array('project_id' => $project['id']), false, 'board-display-mode', t('Keyboard shortcut: "%s"', 's')) ?>
-                    <?php else: ?>
+                    </span>
+                    <span class="filter-display-mode" <?= $this->board->isCollapsed($project['id']) ? 'style="display: none;"' : '' ?>>
                         <i class="fa fa-compress fa-fw"></i>
                         <?= $this->url->link(t('Collapse tasks'), 'board', 'collapse', array('project_id' => $project['id']), false, 'board-display-mode', t('Keyboard shortcut: "%s"', 's')) ?>
-                    <?php endif ?>
+                    </span>
                 </li>
                 <li>
                     <span class="filter-compact">
@@ -40,10 +41,10 @@
             <?= $this->url->link(t('List'), 'listing', 'show', array('project_id' => $project['id'], 'search' => $filters['search']), false, 'view-listing', t('Keyboard shortcut: "%s"', 'v l')) ?>
         </li>
     </ul>
-    <form method="get" action="?" class="search">
-        <?= $this->form->hidden('project_id', $filters) ?>
+    <form method="get" action="<?= $this->url->dir() ?>" class="search">
         <?= $this->form->hidden('controller', $filters) ?>
         <?= $this->form->hidden('action', $filters) ?>
+        <?= $this->form->hidden('project_id', $filters) ?>
         <?= $this->form->text('search', $filters, array(), array('placeholder="'.t('Filter').'"'), 'form-input-large') ?>
     </form>
     <?= $this->render('app/filters_helper', array('reset' => 'status:open')) ?>
